@@ -1,83 +1,87 @@
 ﻿using System;
 using System.Security.Cryptography;
 using System.IO;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace PeerWebApp2._0
+
+namespace PeerWebApp2
 {
-    class Cryptos
+    public class Cryptos
     {
-        private byte[] key;
-        private string ResultString;
+        private byte[] key,IV;
 
-        public Cryptos(byte[] InputKey)
+        public Cryptos(byte[] InputKey, byte[] IVect)
         {
             key = InputKey;
-            ResultString = "";
+            IV = IVect;
         }
 
-        public void Gocrypt(string InputMessage)
+
+        public byte[] EncryptStringToBytes_Aes(string InputMessage)
         {
+            byte[] encrypted;
+
             try
             {
-                MemoryStream myStream = new MemoryStream();
-                //FileStream myStream = new FileStream("myMessage.txt", FileMode.OpenOrCreate);
+                using (Aes aesAlg = Aes.Create())
+                {
+                    aesAlg.Key = key;
+                    aesAlg.IV = IV;
+                    aesAlg.Padding = PaddingMode.Zeros;
 
-                Aes aes = Aes.Create();
-                aes.GenerateKey();
-                key = aes.Key;
+                    // Create an encryptor to perform the stream transform.
+                    ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
 
-                byte[] iv = aes.IV;
-                myStream.Write(iv, 0, iv.Length);
+                    // Create the streams used for encryption.
+                    using (MemoryStream msEncrypt = new MemoryStream())
+                    {
+                        using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+                        {
+                            using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
+                            {
+                                //Write all data to the stream.
+                                swEncrypt.Write(InputMessage);
+                            }
+                            encrypted = msEncrypt.ToArray();
+                        }
+                    }
+                }
 
-                CryptoStream cryptStream = new CryptoStream(
-                    myStream,
-                    aes.CreateEncryptor(),
-                    CryptoStreamMode.Write);
-
-                StreamWriter sWriter = new StreamWriter(cryptStream);
-                
-                sWriter.WriteLine(InputMessage);
-                sWriter.Close();
-                myStream.Close();
-
+                return encrypted;
             }
-            catch
+            catch(Exception exp)
             {
-                Console.WriteLine("The encryption failed.");
-                throw;
+                Console.WriteLine(" ШИфрован = "+exp);
+                return null;
             }
         }
 
-        public void GoEnrypt()
+        public string DecryptStringFromBytes_Aes(byte[] cipherText)
         {
-            try
+            string plaintext ="";
+
+            using (Aes aesAlg = Aes.Create())
             {
-                FileStream myStream = new FileStream("myMessage.txt", FileMode.Open);
-                Aes aes = Aes.Create();
+                aesAlg.Key = key;
+                aesAlg.IV = IV;
+                aesAlg.Padding = PaddingMode.Zeros;
 
-                byte[] iv = new byte[aes.IV.Length];
-                myStream.Read(iv, 0, iv.Length);
+                // Create a decryptor to perform the stream transform.
+                ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
 
-                CryptoStream cryptStream = new CryptoStream(
-                   myStream,
-                   aes.CreateDecryptor(key, iv),
-                   CryptoStreamMode.Read);
-
-
-                StreamReader sReader = new StreamReader(cryptStream);
-                Console.WriteLine("Друг -" + sReader.ReadToEnd());
-                sReader.Close();
-
-
-                File.WriteAllText("myMessage.txt", String.Empty);
+                // Create the streams used for decryption.
+                using (MemoryStream msDecrypt = new MemoryStream(cipherText))
+                {
+                    using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
+                    {
+                        using (StreamReader srDecrypt = new StreamReader(csDecrypt))
+                        {
+                            plaintext = srDecrypt.ReadToEnd();
+                        }
+                    }
+                }
             }
-            catch
-            {
-                Console.WriteLine("The decryption failed.");
-                throw;
-            }
+            
+            return plaintext;    
         }
     }
 }

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace PeerWebApp2._0
+namespace PeerWebApp2
 {
     static class Program
     {

@@ -1,4 +1,4 @@
-﻿namespace PeerWebApp2._0
+﻿namespace PeerWebApp2
 {
     partial class Form1
     {

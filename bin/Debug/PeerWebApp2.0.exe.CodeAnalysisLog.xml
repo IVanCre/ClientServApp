@@ -6,14 +6,23 @@
    <Modules>
     <Module Name="peerwebapp2.0.exe">
      <Namespaces>
-      <Namespace Name="PeerWebApp2._0">
+      <Namespace Name="PeerWebApp2">
        <Types>
-        <Type Name="Cryptos" Kind="Class" Accessibility="Assembly" ExternallyVisible="False">
+        <Type Name="Cryptos" Kind="Class" Accessibility="Public" ExternallyVisible="True">
          <Members>
-          <Member Name="#Gocrypt(System.String)" Kind="Method" Static="False" Accessibility="Public" ExternallyVisible="False">
+          <Member Name="#DecryptStringFromBytes_Aes(System.Byte[])" Kind="Method" Static="False" Accessibility="Public" ExternallyVisible="True">
            <Messages>
-            <Message TypeName="Не ликвидировать объекты несколько раз" Category="Microsoft.Usage" CheckId="CA2202" Status="Active" Created="2021-03-07 07:33:03Z" FixCategory="DependsOnFix">
-             <Issue Certainty="75" Level="Warning" Path="C:\Users\1\source\repos\PeerWebApp2.0\PeerWebApp2.0" File="Cryptos.cs" Line="43">Объект "'myStream'" можно удалять более одного раза в методе 'Cryptos.Gocrypt(string)'. Чтобы избежать исключения System.ObjectDisposedException, следует вызывать метод "Dispose" для объекта только один раз.: Lines: 43</Issue>
+            <Message TypeName="Не ликвидировать объекты несколько раз" Category="Microsoft.Usage" CheckId="CA2202" Status="Active" Created="2021-03-18 02:46:03Z" FixCategory="DependsOnFix">
+             <Issue Certainty="75" Level="Warning" Path="C:\Users\1\source\repos\PeerWebApp2.0\PeerWebApp2.0" File="Cryptos.cs" Line="80">Объект "'csDecrypt'" можно удалять более одного раза в методе 'Cryptos.DecryptStringFromBytes_Aes(byte[])'. Чтобы избежать исключения System.ObjectDisposedException, следует вызывать метод "Dispose" для объекта только один раз.: Lines: 80</Issue>
+             <Issue Certainty="75" Level="Warning" Path="C:\Users\1\source\repos\PeerWebApp2.0\PeerWebApp2.0" File="Cryptos.cs" Line="80">Объект "'msDecrypt'" можно удалять более одного раза в методе 'Cryptos.DecryptStringFromBytes_Aes(byte[])'. Чтобы избежать исключения System.ObjectDisposedException, следует вызывать метод "Dispose" для объекта только один раз.: Lines: 80, 81</Issue>
+            </Message>
+           </Messages>
+          </Member>
+          <Member Name="#EncryptStringToBytes_Aes(System.String)" Kind="Method" Static="False" Accessibility="Public" ExternallyVisible="True">
+           <Messages>
+            <Message TypeName="Не ликвидировать объекты несколько раз" Category="Microsoft.Usage" CheckId="CA2202" Status="Active" Created="2021-03-18 02:46:03Z" FixCategory="DependsOnFix">
+             <Issue Certainty="75" Level="Warning" Path="C:\Users\1\source\repos\PeerWebApp2.0\PeerWebApp2.0" File="Cryptos.cs" Line="45">Объект "'csEncrypt'" можно удалять более одного раза в методе 'Cryptos.EncryptStringToBytes_Aes(string)'. Чтобы избежать исключения System.ObjectDisposedException, следует вызывать метод "Dispose" для объекта только один раз.: Lines: 45</Issue>
+             <Issue Certainty="75" Level="Warning" Path="C:\Users\1\source\repos\PeerWebApp2.0\PeerWebApp2.0" File="Cryptos.cs" Line="45">Объект "'msEncrypt'" можно удалять более одного раза в методе 'Cryptos.EncryptStringToBytes_Aes(string)'. Чтобы избежать исключения System.ObjectDisposedException, следует вызывать метод "Dispose" для объекта только один раз.: Lines: 45, 46</Issue>
             </Message>
            </Messages>
           </Member>
@@ -30,7 +39,7 @@
   <Rule TypeName="Не ликвидировать объекты несколько раз" Category="Microsoft.Usage" CheckId="CA2202">
    <Name>Не ликвидировать объекты несколько раз</Name>
    <Description>Правильно реализованный метод Dispose может вызываться неоднократно без создания исключения. Однако такой гарантии нет, и чтобы предотвратить создание System.ObjectDisposedException, не следует вызывать метод Dispose для объекта более одного раза.</Description>
-   <Resolution Name="Default">Объект "{0}" можно удалять более одного раза в методе {1}. Чтобы избежать исключения System.ObjectDisposedException, следует вызывать метод "Dispose" для объекта только один раз.: Lines: 43</Resolution>
+   <Resolution Name="Default">Объект "{0}" можно удалять более одного раза в методе {1}. Чтобы избежать исключения System.ObjectDisposedException, следует вызывать метод "Dispose" для объекта только один раз.: Lines: 80</Resolution>
    <Owner>RuleOwner</Owner>
    <Url>http://msdn.microsoft.com/library/ms182334.aspx</Url>
    <Email />

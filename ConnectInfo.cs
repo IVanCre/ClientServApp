@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using System.Collections.Generic;
 
 
-namespace PeerWebApp2._0
+namespace PeerWebApp2
 {
     class ConnectInfo
     {

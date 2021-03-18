@@ -3,12 +3,18 @@ using System.Text;
 using System.Net;
 using System.Net.Sockets;
 using System.Windows.Forms;
+using System.Collections.Generic;
 
-namespace PeerWebApp2._0
+namespace PeerWebApp2
 {
-    class Serv
+    public class Serv
     {
-        internal string serverRezult, serverCondition,otvet;
+        private static byte[] MyKey = { 0x16, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x01 };
+        private static byte[] IV = { 0x16, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x01 };
+        Cryptos NewCrypt = new Cryptos(MyKey,IV);
+        internal string serverRezult, serverCondition,otvet,rezult;
+        
+
 
         public void Server(string myAdress, int myPort, Control lab1,Control lab2 )
         {
@@ -24,27 +30,31 @@ namespace PeerWebApp2._0
                 while (true)
                 {
                     Socket handler = listenSocket.Accept();
-                    StringBuilder builder = new StringBuilder();
                     int bytes = 0; // количество полученных байтов
                     byte[] data = new byte[256]; // буфер для получаемых данных
 
+                    List<byte> arr = new List<byte>();
                     do
                     {
                         bytes = handler.Receive(data);
-                        builder.Append(Encoding.Unicode.GetString(data, 0, bytes));
+                        foreach (byte b in data)
+                        {
+                            arr.Add(b);
+                        }
                     }
                     while (handler.Available > 0);
 
-                    serverRezult = (DateTime.Now.ToShortTimeString() + ":(fromClient) " + builder.ToString());//при входящем сообщении
-                                                                                                  
+                    byte[] arrForDecrypt = new byte[arr.Count];
+                    arrForDecrypt = arr.ToArray();
+                    rezult = NewCrypt.DecryptStringFromBytes_Aes(arrForDecrypt);
+
+                    serverRezult = (DateTime.Now.ToShortTimeString() + ":(fromClient) " + rezult);
+                    lab1.Invoke((MethodInvoker)(()=> lab1.Text= serverRezult));//обновляем элемент в его родитесльком потоке, используя ссылку на элемент  
+
                     string message = "доставлено ";// отправляем ответ
                     data = Encoding.Unicode.GetBytes(message);
                     handler.Send(data);
-                    lab1.Invoke((MethodInvoker)(()=> lab1.Text= serverRezult));//обновляем элемент в его родитесльком потоке, используя ссылку на элемент
-
                     // не закрываем сокет, чтоб сессия не прерывалась пока не закроется приложение
-                    //handler.Shutdown(SocketShutdown.Both);
-                    //handler.Close();
                 }
             }
             catch (Exception ex)
@@ -54,8 +64,9 @@ namespace PeerWebApp2._0
         }
 
 
-        public void Client(IPAddress addressForConnect, int portOpponent, string message)
+        public void Client(IPAddress addressForConnect, int portOpponent, string messageInput)
         {
+            
             try
             {
                 IPEndPoint ipPoint = new IPEndPoint(addressForConnect, portOpponent);//адрес оппонента
@@ -63,12 +74,12 @@ namespace PeerWebApp2._0
                 
                 socket.Connect(ipPoint);// подключаемся к удаленному хосту
 
-                string messageSend = message;
-                byte[] data = Encoding.Unicode.GetBytes(messageSend);
+                //byte[] data = Encoding.Unicode.GetBytes(messageInput);//тут можно ставить уже зашифрованный массив байтов
+                byte[] data = NewCrypt.EncryptStringToBytes_Aes(messageInput);
                 socket.Send(data);
 
                 //получаем ответ
-                data = new byte[256]; // буфер для ответа
+                data = new byte[128]; // буфер для ответа
                 StringBuilder builder = new StringBuilder();
                 int bytes = 0; // количество полученных байт
                 do
@@ -78,17 +89,17 @@ namespace PeerWebApp2._0
                 }
                 while (socket.Available > 0);
 
-
-                ////закрываем сокет
+                //закрываем сокет, чтоб  можно было и дальше его юзать
                 socket.Shutdown(SocketShutdown.Both);
                 socket.Close();
 
-                otvet = DateTime.Now.ToShortTimeString() + ": "+ builder.ToString();//сохраняем ответ сервера( то что мы ему отправляли)
+                otvet = DateTime.Now.ToShortTimeString() + ": "+ builder.ToString();//сохраняем ответ сервера(то что мы ему отправляли)
             }
             catch (Exception ex)
             {
-                otvet= ex.Message;
+                otvet = ex.Message;
             }
+
         }
     }
 
