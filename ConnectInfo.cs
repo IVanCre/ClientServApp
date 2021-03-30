@@ -17,10 +17,11 @@ namespace PeerWebApp2
             int num = 0;
             foreach (var iface in NetworkInterface.GetAllNetworkInterfaces())
             {
+                num += 1;
                 var ips = iface.GetIPProperties().UnicastAddresses;//собирает все назначенные адреса
                 foreach (var ip in ips)
                 {
-                    num += 1;
+                    
                     if (ip.Address.AddressFamily == AddressFamily.InterNetwork && ip.Address.ToString() != "127.0.0.1")
                         iplist.Add(ip.Address.ToString());
                     if (num == 2)//2 элемент - текущий ipv4 адрес
